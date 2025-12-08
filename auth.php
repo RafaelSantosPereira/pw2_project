@@ -22,34 +22,26 @@ class Auth {
         }
         
         // Verificar se email já existe
-        $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            $stmt->close();
-            return ['success' => false, 'message' => 'Email já registado'];
-        }
-        $stmt->close();
-        
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        
-        $stmt = $this->conn->prepare("INSERT INTO users (nome, email, password_hash) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $name, $email, $hashed_password);
-        
-        if ($stmt->execute()) {
-            $stmt->close();
+        try {
+            $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            
+            if ($stmt->rowCount() > 0) {
+                return ['success' => false, 'message' => 'Email já registado'];
+            }
+            
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            
+            $stmt = $this->conn->prepare("INSERT INTO users (nome, email, password_hash) VALUES (?, ?, ?)");
+            $stmt->execute([$name, $email, $hashed_password]);
+            
             return ['success' => true, 'message' => 'Conta criada com êxito'];
-        } else {
-            $stmt->close();
+        } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Erro ao criar a conta'];
         }
     }
     
-
     public function login($email, $password) {
-        
         if (empty($email) || empty($password)) {
             return ['success' => false, 'message' => 'Email e senha são obrigatórios'];
         }
@@ -58,33 +50,32 @@ class Auth {
             return ['success' => false, 'message' => 'Email inválido'];
         }
         
-        // Verificar se o utilizador existe
-        $stmt = $this->conn->prepare("SELECT id, nome, email, password_hash FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        // Se não retornar nada, não existe
-        if ($result->num_rows === 0) {
-            $stmt->close();
-            return ['success' => false, 'message' => 'Email ou palavra-passe incorretos'];
+        try {
+            // Verificar se o utilizador existe
+            $stmt = $this->conn->prepare("SELECT id, nome, email, password_hash FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            
+            if ($stmt->rowCount() === 0) {
+                return ['success' => false, 'message' => 'Email ou palavra-passe incorretos'];
+            }
+            
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Verificar palavra-passe
+            if (!password_verify($password, $user['password_hash'])) {
+                return ['success' => false, 'message' => 'Email ou palavra-passe incorretos'];
+            }
+            
+            // Iniciar sessão
+            session_start();
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['nome'];
+            $_SESSION['user_email'] = $user['email'];
+            
+            return ['success' => true, 'message' => 'Autenticação realizada com êxito'];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Erro ao fazer login'];
         }
-        
-        $user = $result->fetch_assoc();
-        $stmt->close();
-        
-        // Verificar palavra-passe
-        if (!password_verify($password, $user['password_hash'])) {
-            return ['success' => false, 'message' => 'Email ou palavra-passe incorretos'];
-        }
-        
-        // Iniciar sessão
-        session_start();
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['nome'];
-        $_SESSION['user_email'] = $user['email'];
-        
-        return ['success' => true, 'message' => 'Autenticação realizada com êxito'];
     }
     
     public function logout() {
