@@ -1,6 +1,6 @@
 <?php
 // Configuração da Base de Dados
-define('ENVIRONMENT', 'local'); 
+define('ENVIRONMENT', 'hostinger'); 
 
 if (ENVIRONMENT === 'local') {
     
