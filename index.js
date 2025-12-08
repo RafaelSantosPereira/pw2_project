@@ -1,5 +1,6 @@
 // Variável global para armazenar o ID do utilizador autenticado
 let currentUserId = null;
+let likedPosts = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Obter user ID da API antes de carregar posts
@@ -8,6 +9,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = await response.json();
         if (data.success) {
             currentUserId = data.user_id;
+            
+            // Obter lista de posts que o utilizador já deu like
+            const likedResponse = await fetch('api/get_liked_posts.php');
+            const likedData = await likedResponse.json();
+            if (likedData.success) {
+                likedPosts = likedData.posts_liked;
+            }
+            
             loadPosts();
         } else {
             console.error('Erro ao obter informações do utilizador');
@@ -42,11 +51,11 @@ function createPostElement(post) {
     const article = document.createElement('article');
     article.className = 'post';
     article.id = 'post-' + post.post_id;
-    // REMOVIDO: O espaçamento agora é gerido exclusivamente pelo CSS (gap)
     
     const date = new Date(post.created_at);
     const formattedDate = formatTimeAgo(date);
     const canDelete = currentUserId === post.user_id;
+    const isLiked = likedPosts.includes(post.post_id);
 
     // Construir o HTML do post
     let postHTML = `
@@ -70,13 +79,30 @@ function createPostElement(post) {
             <p>${escapeHtml(post.content)}</p>
         </div>
         <div class="post-stats">
-            <span>👍 ${post.likes_count} Likes</span>
-            <span>💬 ${post.comments_count} comentários</span>
+            <span id="likes-count-${post.post_id}">👍 ${post.likes_count} Like${post.likes_count !== 1 ? 's' : ''}</span>
+            <span>💬 ${post.comments_count} comentário${post.comments_count !== 1 ? 's' : ''}</span>
         </div>
         <div class="post-interactions">
-            <button class="interact-btn">❤️ Like</button>
-            <button class="interact-btn">💬 Comentar</button>
-            <button class="interact-btn">↗️ Compartilhar</button>
+            <button class="interact-btn like-btn${isLiked ? ' liked' : ''}" onclick="toggleLike(${post.post_id})" title="Like">
+                <svg viewBox="0 0 24 24" class="heart-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span class="like-text">Like</span>
+            </button>
+            <button class="interact-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="like-text">Comentar</span>
+            </button>
+            <button class="interact-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+                <span class="like-text">Compartilhar</span>
+            </button>
         </div>
     `;
 
@@ -190,4 +216,43 @@ function formatTimeAgo(date) {
     if (diffDays < 7) return `Há ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
     
     return date.toLocaleDateString('pt-PT');
+}
+
+function toggleLike(postId) {
+    (async () => {
+        try {
+            const response = await fetch('api/like_post.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ post_id: postId })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                // Encontrar o botão de like
+                const likeBtn = document.querySelector(`#post-${postId} .like-btn`);
+                const likesCount = document.getElementById(`likes-count-${postId}`);
+                
+                // Atualizar o estado no array global
+                if (data.liked) {
+                    likedPosts.push(postId);
+                    likeBtn.classList.add('liked');
+                } else {
+                    likedPosts = likedPosts.filter(id => id !== postId);
+                    likeBtn.classList.remove('liked');
+                }
+                
+                // Atualizar o contador
+                const currentCount = parseInt(likesCount.textContent.match(/\d+/)[0]);
+                const newCount = data.liked ? currentCount + 1 : currentCount - 1;
+                likesCount.textContent = `👍 ${newCount} Like${newCount !== 1 ? 's' : ''}`;
+            } else {
+                console.error('Erro ao processar like:', data.message);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer like:', error);
+        }
+    })();
 }

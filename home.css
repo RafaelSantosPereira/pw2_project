@@ -300,8 +300,41 @@ header {
 }
 
 .interact-btn:hover {
-    background: #2a2a2a;
+    background: rgba(168, 85, 247, 0.1);
     color: #a855f7;
+}
+
+.interact-btn:hover svg {
+    stroke: #a855f7;
+}
+
+.interact-btn.like-btn {
+    background: transparent;
+}
+
+.interact-btn.like-btn:hover {
+    color: #ff1493;
+}
+
+.interact-btn.like-btn:hover svg {
+    stroke: #ff1493;
+}
+
+.interact-btn.like-btn.liked {
+    color: #ff1493;
+}
+
+.interact-btn.like-btn.liked svg {
+    fill: #ff1493;
+    stroke: #ff1493;
+}
+
+.interact-btn svg {
+    stroke: currentColor;
+}
+
+.like-text {
+    font-size: 14px;
 }
 
 /* Right Sidebar */
