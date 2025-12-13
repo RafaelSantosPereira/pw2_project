@@ -30,6 +30,16 @@ CREATE TABLE likes (
     FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- DELIMITER $$
 
 -- Cria o trigger para ser executado APÓS a inserção em 'likes'
@@ -56,6 +66,36 @@ BEGIN
     -- OLD.post_id se refere ao post_id que acabou de ser eliminado da tabela 'likes'
     UPDATE posts
     SET likes_count = GREATEST(0, likes_count - 1)
+    WHERE post_id = OLD.post_id;
+END;
+-- $$
+
+-- DELIMITER $$
+
+-- Cria o trigger para ser executado APÓS a inserção em 'comments'
+CREATE TRIGGER increment_comments_count
+AFTER INSERT ON comments
+FOR EACH ROW
+BEGIN
+    -- O comando de UPDATE incrementa o campo comments_count na tabela posts
+    -- NEW.post_id se refere ao post_id que acabou de ser inserido na tabela 'comments'
+    UPDATE posts
+    SET comments_count = comments_count + 1
+    WHERE post_id = NEW.post_id;
+END;
+-- $$
+
+-- DELIMITER $$
+
+-- Cria o trigger para ser executado APÓS a eliminação em 'comments'
+CREATE TRIGGER decrement_comments_count
+AFTER DELETE ON comments
+FOR EACH ROW
+BEGIN
+    -- O comando de UPDATE decrementa o campo comments_count na tabela posts
+    -- OLD.post_id se refere ao post_id que acabou de ser eliminado da tabela 'comments'
+    UPDATE posts
+    SET comments_count = GREATEST(0, comments_count - 1)
     WHERE post_id = OLD.post_id;
 END;
 -- $$

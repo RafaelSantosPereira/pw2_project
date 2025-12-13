@@ -337,6 +337,146 @@ header {
     font-size: 14px;
 }
 
+/* Comentários */
+.comments-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2a2a;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comments-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.comment {
+    padding: 12px 0;
+    border-bottom: 1px solid #2a2a2a;
+    position: relative;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.comment-info h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.comment-info p {
+    font-size: 12px;
+    color: #666;
+    margin: 2px 0 0 0;
+}
+
+.comment-content {
+    margin-left: 42px;
+    font-size: 14px;
+    color: #e4e4e4;
+    line-height: 1.5;
+}
+
+.comment-content p {
+    margin: 0;
+}
+
+.delete-comment-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.delete-comment-btn:hover {
+    color: #ff9999;
+}
+
+.comment-input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.comment-input {
+    flex: 1;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #e4e4e4;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.comment-input:focus {
+    border-color: #a855f7;
+    background: #333333;
+}
+
+.comment-input::placeholder {
+    color: #666;
+}
+
+.comment-btn {
+    background: #a855f7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background 0.3s;
+    white-space: nowrap;
+}
+
+.comment-btn:hover {
+    background: #9333ea;
+}
+
+.comment-btn:active {
+    background: #7c3aed;
+}
+
 /* Right Sidebar */
 .suggestions {
     background: #1a1a1a;
