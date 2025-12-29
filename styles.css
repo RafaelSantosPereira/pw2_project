@@ -177,4 +177,63 @@ input::placeholder {
     }
 }
 
+/* Estilos para o formulário de edição de perfil */
+#edit-profile-form {
+    margin-top: -60px;
+    padding: 20px 40px 40px;
+    background: #1a1a1a;
+    border-radius: 0 0 12px 12px;
+}
+
+#edit-profile-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#edit-profile-form label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #a0a0a0;
+}
+
+#edit-profile-form input,
+#edit-profile-form textarea {
+    width: 100%;
+    padding: 12px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    color: #e4e4e4;
+    font-size: 15px;
+    transition: all 0.3s;
+}
+
+#edit-profile-form input:focus,
+#edit-profile-form textarea:focus {
+    outline: none;
+    border-color: #a855f7;
+    background: #333;
+}
+
+#edit-profile-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#edit-profile-form button {
+    align-self: flex-start;
+    padding: 10px 30px;
+    background: #a855f7;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#edit-profile-form button:hover {
+    background: #9333ea;
+}
 

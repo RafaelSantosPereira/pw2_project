@@ -17,7 +17,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 likedPosts = likedData.posts_liked;
             }
             
-            loadPosts();
+            // Apenas carregar posts se o container principal de posts existir
+            if (document.getElementById('postsContainer')) {
+                loadPosts();
+            }
         } else {
             console.error('Erro ao obter informações do utilizador');
         }

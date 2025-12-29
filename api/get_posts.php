@@ -11,15 +11,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 // Obter parâmetros
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20; // quantidade de posts a retornar
-$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0; // de onde começar neste caso pelo primeiro post
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+$user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
 
 // Validar parâmetros
 if ($limit < 1 || $limit > 100) $limit = 20;
 if ($offset < 0) $offset = 0;
 
-// Obter todos os posts
-$result = $posts->getAllPosts($limit, $offset);
+// Obter posts
+if ($user_id) {
+    // Obter posts de um utilizador específico
+    $result = $posts->getUserPosts($user_id, $limit, $offset);
+} else {
+    // Obter todos os posts
+    $result = $posts->getAllPosts($limit, $offset);
+}
 
 echo json_encode($result);
 ?>

@@ -44,14 +44,10 @@ if (!isset($_SESSION['user_id'])) {
                 <span>👥</span>
                 <span>Amigos</span>
             </div>
-            <div class="sidebar-item">
-                <span>📹</span>
-                <span>Vídeos</span>
-            </div>
-            <div class="sidebar-item">
-                <span>📸</span>
-                <span>Fotos</span>
-            </div>
+            <a href="profile.php" class="sidebar-item">
+                <span>👤</span>
+                <span>Perfil</span>
+            </a>
             <div class="sidebar-item">
                 <span>⚙️</span>
                 <span>Configurações</span>
