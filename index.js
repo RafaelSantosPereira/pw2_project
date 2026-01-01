@@ -67,7 +67,7 @@ function createPostElement(post) {
                 <span style="color: white; font-weight: bold; font-size: 20px;">${post.nome.charAt(0).toUpperCase()}</span>
             </div>
             <div class="post-info">
-                <h3>${escapeHtml(post.nome)}</h3>
+                <h3><a href="profile.php?user_id=${post.user_id}" class="post-author-link">${escapeHtml(post.nome)}</a></h3>
                 <p>${formattedDate}</p>
             </div>
         </div>
@@ -323,7 +323,7 @@ function createCommentElement(comment, postId) {
                 <span style="color: white; font-weight: bold; font-size: 12px;">${comment.nome.charAt(0).toUpperCase()}</span>
             </div>
             <div class="comment-info">
-                <h4>${escapeHtml(comment.nome)}</h4>
+                <h4><a href="profile.php?user_id=${comment.user_id}" class="commenter-link">${escapeHtml(comment.nome)}</a></h4>
                 <p>${formattedDate}</p>
             </div>
         </div>

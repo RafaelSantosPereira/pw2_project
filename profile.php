@@ -44,7 +44,11 @@ $is_own_profile = ($user_id === $_SESSION['user_id']);
                 <span>👥</span>
                 <span>Amigos</span>
             </div>
-            <a href="profile.php" class="sidebar-item active">
+            <a href="mensagens.php" class="sidebar-item">
+                <span>💬</span>
+                <span>Mensagens</span>
+            </a>
+            <a href="profile.php" class="sidebar-item">
                 <span>👤</span>
                 <span>Perfil</span>
             </a>
@@ -65,7 +69,10 @@ $is_own_profile = ($user_id === $_SESSION['user_id']);
                         </div>
                     <button class="edit-profile-btn" onclick="toggleEditForm(event)">Editar Perfil</button>                    </div>
                     <div class="profile-info">
-                        <h1 id="profile-name" class="profile-name"></h1>
+                        <div class="profile-name-container">
+                            <h1 id="profile-name" class="profile-name"></h1>
+                            <button id="follow-unfollow-btn" class="follow-btn" style="display: none;"></button>
+                        </div>
                         <div class="profile-details">
                             <p id="profile-location" class="profile-location"></p>
                             <p id="profile-bio" class="profile-bio"></p>

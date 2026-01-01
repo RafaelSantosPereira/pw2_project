@@ -18,7 +18,8 @@ try {
     // Preparar a consulta para obter dados do perfil e do usuário
     $sql = "SELECT u.id, u.nome, u.email, u.followers_count, u.following_count, 
                    p.bio, p.website, p.location, p.birthdate, p.avatar_url,
-                   (SELECT COUNT(*) FROM posts WHERE user_id = u.id) as posts_count
+                   (SELECT COUNT(*) FROM posts WHERE user_id = u.id) as posts_count,
+                   (SELECT COUNT(*) FROM followers WHERE follower_id = :session_user_id AND following_id = u.id) > 0 as is_following
             FROM users u
             LEFT JOIN profiles p ON u.id = p.user_id
             WHERE u.id = :user_id";
@@ -30,7 +31,10 @@ try {
         exit;
     }
 
-    $stmt->execute(['user_id' => $user_id]);
+    $stmt->execute([
+        'user_id' => $user_id,
+        'session_user_id' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0
+    ]);
     
     $profile_data = $stmt->fetch(PDO::FETCH_ASSOC);
 

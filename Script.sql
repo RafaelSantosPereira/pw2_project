@@ -62,6 +62,20 @@ CREATE TABLE profiles (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+DELIMITER ;
+ -- DELIMITER ;
+
+CREATE TABLE messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- DELIMITER $$
 
 -- Cria o trigger para ser executado APÓS a inserção em 'likes'
@@ -122,27 +136,45 @@ BEGIN
 END;
 -- $$
 
--- DELIMITER $$
+-- Trigger para INCREMENTAR contadores ao SEGUIR
+DELIMITER $$
 
 CREATE TRIGGER increment_follow_counts
 AFTER INSERT ON followers
 FOR EACH ROW
 BEGIN
-    UPDATE users SET following_count = following_count + 1 WHERE id = NEW.follower_id;
-    UPDATE users SET followers_count = followers_count + 1 WHERE id = NEW.following_id;
-END;
--- $$
+    -- Incrementa followers_count de quem FOI seguido
+    UPDATE users 
+    SET followers_count = followers_count + 1 
+    WHERE id = NEW.following_id;
+    
+    -- Incrementa following_count de quem SEGUIU
+    UPDATE users 
+    SET following_count = following_count + 1 
+    WHERE id = NEW.follower_id;
+END$$
 
--- DELIMITER $$
+DELIMITER ;
+
+-- Trigger para DECREMENTAR contadores ao DEIXAR DE SEGUIR
+DELIMITER $$
 
 CREATE TRIGGER decrement_follow_counts
 AFTER DELETE ON followers
 FOR EACH ROW
 BEGIN
-    UPDATE users SET following_count = GREATEST(0, following_count - 1) WHERE id = OLD.follower_id;
-    UPDATE users SET followers_count = GREATEST(0, followers_count - 1) WHERE id = OLD.following_id;
-END;
--- $$
+    -- Decrementa followers_count de quem ERA seguido
+    UPDATE users 
+    SET followers_count = GREATEST(0, followers_count - 1) 
+    WHERE id = OLD.following_id;
+    
+    -- Decrementa following_count de quem DEIXOU de seguir
+    UPDATE users 
+    SET following_count = GREATEST(0, following_count - 1) 
+    WHERE id = OLD.follower_id;
+END$$
+
+DELIMITER ;
 
 
 

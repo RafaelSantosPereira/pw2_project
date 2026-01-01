@@ -115,8 +115,9 @@ header {
     background: #2a2a2a;
 }
 
-.sidebar-item.active {
-    background: #a855f7;
+.sidebar a{
+    color: #e4e4e4;
+    text-decoration: none;
 }
 
 /* Feed */
@@ -252,6 +253,17 @@ header {
 .post-info h3 {
     font-size: 15px;
     font-weight: 600;
+}
+
+.post-info h3 a {
+    text-decoration: none;
+    color: #e4e4e4;
+    transition: color 0.3s;
+}
+
+.post-info h3 a:hover {
+    color: #a855f7;
+    text-decoration: underline;
 }
 
 .post-info p {
@@ -402,6 +414,17 @@ header {
     margin: 2px 0 0 0;
 }
 
+.comment-info h4 a {
+    text-decoration: none;
+    color: #e4e4e4;
+    transition: color 0.3s;
+}
+
+.comment-info h4 a:hover {
+    color: #a855f7;
+    text-decoration: underline;
+}
+
 .comment-content {
     margin-left: 42px;
     font-size: 14px;
@@ -531,6 +554,17 @@ header {
     background: #9333ea;
 }
 
+#follow-unfollow-btn {
+    background: #a855f7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
 @media (max-width: 968px) {
     .container {
         grid-template-columns: 1fr;
@@ -612,8 +646,15 @@ header {
 .profile-name {
     font-size: 28px;
     font-weight: bold;
+}
+
+.profile-name-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 12px;
 }
+
 
 .profile-details {
     display: flex;
@@ -862,9 +903,4 @@ body.form-open::before {
 
 #edit-profile-form button:active {
     background: #7c3aed;
-}
-
-a{
-    text-decoration: none;
-    color: #e4e4e4;
 }

@@ -1,10 +1,5 @@
 <?php
-require_once 'config.php';
-require_once 'posts.php';
-
 session_start();
-
-// Verificar se o usuário está logado
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -15,8 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocialNet - Página Inicial</title>
+    <title>Mensagens - SocialNet</title>
     <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="messages.css">
 </head>
 <body>
     <header>
@@ -26,7 +22,7 @@ if (!isset($_SESSION['user_id'])) {
                 <input type="text" placeholder="Pesquisar...">
             </div>
             <div class="header-icons">
-                <button class="icon-btn">🏠</button>
+                <button class="icon-btn" onclick="window.location.href='index.php'">🏠</button>
                 <button class="icon-btn">💬</button>
                 <button class="icon-btn">🔔</button>
                 <button class="icon-btn" onclick="logout()">👤</button>
@@ -36,10 +32,10 @@ if (!isset($_SESSION['user_id'])) {
 
     <div class="container">
         <aside class="sidebar">
-            <div class="sidebar-item">
+            <a href="index.php" class="sidebar-item">
                 <span>📱</span>
                 <span>Feed</span>
-            </div>
+            </a>
             <div class="sidebar-item">
                 <span>👥</span>
                 <span>Amigos</span>
@@ -58,28 +54,34 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </aside>
 
-        <!-- Main Feed -->
         <main class="feed">
-            <!-- Post Creator -->
-            <div class="post-creator">
-                <textarea id="postContent" placeholder="No que você está pensando?" rows="3"></textarea>
-                <div class="post-actions">
-                    <div class="post-options">
-                        <button class="option-btn" disabled>📷 Foto</button>
-                        <button class="option-btn" disabled>🎥 Vídeo</button>
-                        <button class="option-btn" disabled>😊 Emoji</button>
+            <div class="messages-page">
+                <div class="messages-container">
+                    <div class="users-list">
+                        <h3>Conversas</h3>
+                        <div class="users-scroll">
+                            <!-- User list will be loaded here -->
+                        </div>
                     </div>
-                    <button class="post-btn" onclick="publishPost()">Publicar</button>
+                    <div class="chat-area">
+                        <div class="chat-header">
+                            <div class="empty-state">
+                                <span style="font-size: 48px;">💬</span>
+                                <p>Selecione uma conversa para começar</p>
+                            </div>
+                        </div>
+                        <div class="chat-messages">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div class="chat-form">
+                            <input type="text" id="message-input" placeholder="Escreva uma mensagem...">
+                            <button id="send-button">Enviar</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Posts Container -->
-            <div id="postsContainer">
-                <p style="text-align: center; color: #999999; padding: 20px;">Carregando posts...</p>
             </div>
         </main>
 
-        <!-- Right Sidebar -->
         <aside class="suggestions">
             <h3>Sugestões de Amizade</h3>
             <div class="suggestion-item">
@@ -98,17 +100,16 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
                 <button class="follow-btn">Seguir</button>
             </div>
-            <div class="suggestion-item">
-                <div class="avatar"></div>
-                <div class="suggestion-info">
-                    <h4>Carla Souza</h4>
-                    <p>15 amigos em comum</p>
-                </div>
-                <button class="follow-btn">Seguir</button>
-            </div>
         </aside>
     </div>
 
-    <script src="index.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Define currentUserId apenas se ainda não existir
+        if (typeof currentUserId === 'undefined') {
+            var currentUserId = <?php echo $_SESSION['user_id']; ?>;
+        }
+    </script>
+    <script src="messages.js"></script>
 </body>
 </html>

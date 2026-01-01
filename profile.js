@@ -60,6 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 editBtn.style.display = 'none';
             }
 
+            // Botão de Seguir/Parar de Seguir
+            const followBtn = document.getElementById('follow-unfollow-btn');
+            if (!data.is_own_profile) {
+                followBtn.style.display = 'block';
+                followBtn.textContent = data.is_following ? 'Parar de Seguir' : 'Seguir';
+                followBtn.addEventListener('click', () => toggleFollow(data.id, data.is_following));
+            }
+
             // Carregar os posts do utilizador
             loadUserPosts(data.id);
         })
@@ -71,6 +79,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup para fechar o formulário ao clicar fora
     setupFormOverlay();
 });
+
+async function toggleFollow(userId, isFollowing) {
+    const url = isFollowing ? 'api/unfollow_user.php' : 'api/follow_user.php';
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ following_id: userId })
+        });
+        const result = await response.json();
+        if (result.success) {
+            // Recarregar a página para atualizar o estado do botão e contagem de seguidores
+            window.location.reload();
+        } else {
+            throw new Error(result.error || 'Ocorreu um erro');
+        }
+    } catch (error) {
+        console.error('Erro ao seguir/parar de seguir:', error);
+        alert(error.message);
+    }
+}
 
 // Carregar os posts de um user especifico
 async function loadUserPosts(userId) {
