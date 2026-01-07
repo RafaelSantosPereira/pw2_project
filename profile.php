@@ -26,9 +26,6 @@ $is_own_profile = ($user_id === $_SESSION['user_id']);
                 <input type="text" placeholder="Pesquisar...">
             </div>
             <div class="header-icons">
-                <button class="icon-btn" onclick="window.location.href='index.php'">🏠</button>
-                <button class="icon-btn">💬</button>
-                <button class="icon-btn">🔔</button>
                 <button class="icon-btn" onclick="logout()">👤</button>
             </div>
         </div>
@@ -40,10 +37,6 @@ $is_own_profile = ($user_id === $_SESSION['user_id']);
                 <span>📱</span>
                 <span>Feed</span>
             </a>
-            <div class="sidebar-item">
-                <span>👥</span>
-                <span>Amigos</span>
-            </div>
             <a href="mensagens.php" class="sidebar-item">
                 <span>💬</span>
                 <span>Mensagens</span>
@@ -52,10 +45,6 @@ $is_own_profile = ($user_id === $_SESSION['user_id']);
                 <span>👤</span>
                 <span>Perfil</span>
             </a>
-            <div class="sidebar-item">
-                <span>⚙️</span>
-                <span>Configurações</span>
-            </div>
         </aside>
 
         <main class="feed">

@@ -2,16 +2,33 @@
 let currentUserId = null;
 let likedPosts = [];
 
+// Função para obter o caminho correto da API baseado na localização atual
+function getApiPath(endpoint) {
+    // Verifica se estamos dentro de uma subpasta (como search/)
+    const path = window.location.pathname;
+    const isInSubfolder = path.includes('/search/');
+    
+    return isInSubfolder ? `../api/${endpoint}` : `api/${endpoint}`;
+}
+
+// Função para obter o caminho correto para páginas
+function getPagePath(page) {
+    const path = window.location.pathname;
+    const isInSubfolder = path.includes('/search/');
+    
+    return isInSubfolder ? `../${page}` : page;
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Obter user ID da API antes de carregar posts
     try {
-        const response = await fetch('api/get_user_info.php');
+        const response = await fetch(getApiPath('get_user_info.php'));
         const data = await response.json();
         if (data.success) {
             currentUserId = data.user_id;
             
             // Obter lista de posts que o utilizador já deu like
-            const likedResponse = await fetch('api/get_liked_posts.php');
+            const likedResponse = await fetch(getApiPath('get_liked_posts.php'));
             const likedData = await likedResponse.json();
             if (likedData.success) {
                 likedPosts = likedData.posts_liked;
@@ -34,7 +51,7 @@ async function loadPosts() {
     const container = document.getElementById('postsContainer');
 
     try {
-        const response = await fetch('api/get_posts.php?limit=50&offset=0');
+        const response = await fetch(getApiPath('get_posts.php?limit=50&offset=0'));
         const data = await response.json();
         if (data.success && data.posts.length > 0) {
             container.innerHTML = '';
@@ -59,6 +76,8 @@ function createPostElement(post) {
     const formattedDate = formatTimeAgo(date);
     const canDelete = currentUserId === post.user_id;
     const isLiked = likedPosts.includes(post.post_id);
+    
+    const profilePath = getPagePath('profile.php');
 
     // Construir o HTML do post
     let postHTML = `
@@ -67,7 +86,7 @@ function createPostElement(post) {
                 <span style="color: white; font-weight: bold; font-size: 20px;">${post.nome.charAt(0).toUpperCase()}</span>
             </div>
             <div class="post-info">
-                <h3><a href="profile.php?user_id=${post.user_id}" class="post-author-link">${escapeHtml(post.nome)}</a></h3>
+                <h3><a href="${profilePath}?user_id=${post.user_id}" class="post-author-link">${escapeHtml(post.nome)}</a></h3>
                 <p>${formattedDate}</p>
             </div>
         </div>
@@ -97,14 +116,6 @@ function createPostElement(post) {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
                 <span class="like-text">Comentários</span>
-            </button>
-            <button class="interact-btn">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 6 12 2 8 6"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                </svg>
-                <span class="like-text">Compartilhar</span>
             </button>
         </div>
         <div class="comments-section" id="comments-section-${post.post_id}" style="display: none;">
@@ -136,7 +147,7 @@ function publishPost() {
 
     (async () => {
         try {
-            const response = await fetch('api/create_post.php', {
+            const response = await fetch(getApiPath('create_post.php'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,7 +178,7 @@ function deletePost(postId) {
 
     (async () => {
         try {
-            const response = await fetch('api/delete_post.php', {
+            const response = await fetch(getApiPath('delete_post.php'), {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -197,11 +208,11 @@ function logout() {
 
     (async () => {
         try {
-            const response = await fetch('api/logout.php', {
+            const response = await fetch(getApiPath('logout.php'), {
                 method: 'POST'
             });
             const data = await response.json();
-            window.location.href = 'login.php';
+            window.location.href = getPagePath('login.php');
         } catch (error) {
             alert('Erro ao fazer logout: ' + error);
             console.error('Erro:', error);
@@ -233,7 +244,7 @@ function formatTimeAgo(date) {
 function toggleLike(postId) {
     (async () => {
         try {
-            const response = await fetch('api/like_post.php', {
+            const response = await fetch(getApiPath('like_post.php'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -290,7 +301,7 @@ async function loadCommentsForPost(postId) {
     const commentsList = document.getElementById(`comments-list-${postId}`);
     
     try {
-        const response = await fetch(`api/get_comments.php?post_id=${postId}`);
+        const response = await fetch(getApiPath(`get_comments.php?post_id=${postId}`));
         const data = await response.json();
         
         if (data.success && data.comments.length > 0) {
@@ -316,6 +327,7 @@ function createCommentElement(comment, postId) {
     const date = new Date(comment.created_at);
     const formattedDate = formatTimeAgo(date);
     const canDelete = currentUserId === comment.user_id;
+    const profilePath = getPagePath('profile.php');
     
     let commentHTML = `
         <div class="comment-header">
@@ -323,7 +335,7 @@ function createCommentElement(comment, postId) {
                 <span style="color: white; font-weight: bold; font-size: 12px;">${comment.nome.charAt(0).toUpperCase()}</span>
             </div>
             <div class="comment-info">
-                <h4><a href="profile.php?user_id=${comment.user_id}" class="commenter-link">${escapeHtml(comment.nome)}</a></h4>
+                <h4><a href="${profilePath}?user_id=${comment.user_id}" class="commenter-link">${escapeHtml(comment.nome)}</a></h4>
                 <p>${formattedDate}</p>
             </div>
         </div>
@@ -361,7 +373,7 @@ function publishComment(postId) {
     
     (async () => {
         try {
-            const response = await fetch('api/create_comment.php', {
+            const response = await fetch(getApiPath('create_comment.php'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -408,7 +420,7 @@ function deleteComment(commentId, postId) {
     
     (async () => {
         try {
-            const response = await fetch('api/delete_comment.php', {
+            const response = await fetch(getApiPath('delete_comment.php'), {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -444,3 +456,160 @@ function deleteComment(commentId, postId) {
         }
     })();
 }
+
+// Funcionalidade de pesquisa global
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInputs = document.querySelectorAll('.search-bar input[type="text"]');
+    
+    searchInputs.forEach(input => {
+        if (input.id === 'main-search-input' || input.id === 'search-input') {
+            return;
+        }
+        
+        if (input.dataset.searchInitialized) {
+            return;
+        }
+        input.dataset.searchInitialized = 'true';
+        
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    window.location.href = `${getPagePath('search/search.php')}?q=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    });
+});
+
+// ===== SUGESTÕES DE AMIZADE =====
+// Adicionar este código ao FINAL do index.js
+
+async function loadSuggestions() {
+    const suggestionsContainer = document.querySelector('.suggestions');
+    
+    // Verificar se existe o container de sugestões na página
+    if (!suggestionsContainer) return;
+    
+    try {
+        const response = await fetch(getApiPath('get_suggestions.php'));
+        const data = await response.json();
+        
+        if (data.success && data.suggestions.length > 0) {
+            // Manter o título e limpar o resto
+            const title = suggestionsContainer.querySelector('h3');
+            suggestionsContainer.innerHTML = '';
+            if (title) suggestionsContainer.appendChild(title);
+            else suggestionsContainer.innerHTML = '<h3>Sugestões de Amizade</h3>';
+            
+            data.suggestions.forEach(user => {
+                const suggestionElement = createSuggestionElement(user);
+                suggestionsContainer.appendChild(suggestionElement);
+            });
+        } else {
+            // Se não houver sugestões, mostrar mensagem
+            suggestionsContainer.innerHTML = `
+                <h3>Sugestões de Amizade</h3>
+                <p style="text-align: center; color: #666; padding: 20px; font-size: 14px;">
+                    Nenhuma sugestão disponível no momento
+                </p>
+            `;
+        }
+    } catch (error) {
+        console.error('Erro ao carregar sugestões:', error);
+    }
+}
+
+function createSuggestionElement(user) {
+    const div = document.createElement('div');
+    div.className = 'suggestion-item';
+    div.dataset.userId = user.id;
+    
+    const initial = (user.nome || 'U').charAt(0).toUpperCase();
+    const mutualText = user.mutual_friends > 0 
+        ? `${user.mutual_friends} amigo${user.mutual_friends > 1 ? 's' : ''} em comum`
+        : `${user.followers_count || 0} seguidores`;
+    
+    div.innerHTML = `
+        <div class="avatar" style="background: linear-gradient(135deg, #a855f7, #7c3aed); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <span style="color: white; font-weight: bold; font-size: 18px;">${initial}</span>
+        </div>
+        <div class="suggestion-info" style="cursor: pointer;">
+            <h4>${escapeHtml(user.nome)}</h4>
+            <p>${mutualText}</p>
+        </div>
+        <button class="follow-btn" data-user-id="${user.id}" onclick="followUserFromSuggestion(${user.id})">Seguir</button>
+    `;
+    
+    // Tornar avatar e info clicáveis para ir ao perfil
+    const avatar = div.querySelector('.avatar');
+    const info = div.querySelector('.suggestion-info');
+    
+    const goToProfile = () => {
+        window.location.href = getPagePath(`profile.php?user_id=${user.id}`);
+    };
+    
+    avatar.addEventListener('click', goToProfile);
+    info.addEventListener('click', goToProfile);
+    
+    return div;
+}
+
+async function followUserFromSuggestion(userId) {
+    const button = document.querySelector(`.follow-btn[data-user-id="${userId}"]`);
+    const originalText = button.textContent;
+    
+    button.disabled = true;
+    button.textContent = 'Seguindo...';
+    
+    try {
+        const response = await fetch(getApiPath('follow_user.php'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ following_id: userId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            button.textContent = '✓ Seguindo';
+            button.style.background = '#4ade80';
+            button.disabled = true;
+            
+            // Após 1 segundo, remover a sugestão da lista
+            setTimeout(() => {
+                const suggestionItem = button.closest('.suggestion-item');
+                suggestionItem.style.opacity = '0';
+                suggestionItem.style.transform = 'translateX(20px)';
+                suggestionItem.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    suggestionItem.remove();
+                    
+                    // Se não houver mais sugestões, recarregar
+                    const remainingSuggestions = document.querySelectorAll('.suggestion-item').length;
+                    if (remainingSuggestions === 0) {
+                        loadSuggestions();
+                    }
+                }, 300);
+            }, 1000);
+        } else {
+            throw new Error(data.error || 'Erro ao seguir usuário');
+        }
+    } catch (error) {
+        console.error('Erro ao seguir usuário:', error);
+        alert('Erro ao seguir usuário. Tente novamente.');
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
+
+// Carregar sugestões quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar um pouco para garantir que currentUserId está definido
+    setTimeout(() => {
+        if (currentUserId) {
+            loadSuggestions();
+        }
+    }, 500);
+});

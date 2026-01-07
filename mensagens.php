@@ -22,9 +22,6 @@ if (!isset($_SESSION['user_id'])) {
                 <input type="text" placeholder="Pesquisar...">
             </div>
             <div class="header-icons">
-                <button class="icon-btn" onclick="window.location.href='index.php'">🏠</button>
-                <button class="icon-btn">💬</button>
-                <button class="icon-btn">🔔</button>
                 <button class="icon-btn" onclick="logout()">👤</button>
             </div>
         </div>
@@ -36,10 +33,6 @@ if (!isset($_SESSION['user_id'])) {
                 <span>📱</span>
                 <span>Feed</span>
             </a>
-            <div class="sidebar-item">
-                <span>👥</span>
-                <span>Amigos</span>
-            </div>
             <a href="mensagens.php" class="sidebar-item">
                 <span>💬</span>
                 <span>Mensagens</span>
@@ -48,10 +41,6 @@ if (!isset($_SESSION['user_id'])) {
                 <span>👤</span>
                 <span>Perfil</span>
             </a>
-            <div class="sidebar-item">
-                <span>⚙️</span>
-                <span>Configurações</span>
-            </div>
         </aside>
 
         <main class="feed">
@@ -83,33 +72,10 @@ if (!isset($_SESSION['user_id'])) {
         </main>
 
         <aside class="suggestions">
-            <h3>Sugestões de Amizade</h3>
-            <div class="suggestion-item">
-                <div class="avatar"></div>
-                <div class="suggestion-info">
-                    <h4>Ana Costa</h4>
-                    <p>12 amigos em comum</p>
-                </div>
-                <button class="follow-btn">Seguir</button>
-            </div>
-            <div class="suggestion-item">
-                <div class="avatar"></div>
-                <div class="suggestion-info">
-                    <h4>Pedro Lima</h4>
-                    <p>8 amigos em comum</p>
-                </div>
-                <button class="follow-btn">Seguir</button>
-            </div>
+            
         </aside>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // Define currentUserId apenas se ainda não existir
-        if (typeof currentUserId === 'undefined') {
-            var currentUserId = <?php echo $_SESSION['user_id']; ?>;
-        }
-    </script>
+    <script src="index.js"></script>
     <script src="messages.js"></script>
 </body>
 </html>
