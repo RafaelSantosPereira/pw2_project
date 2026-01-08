@@ -1,8 +1,9 @@
 <?php
 require_once '../config.php';
-require_once '../posts.php';
 
 session_start();
+
+header('Content-Type: application/json');
 
 // Verificar se o utilizador está autenticado
 if (!isset($_SESSION['user_id'])) {
@@ -20,45 +21,50 @@ if (!isset($data['post_id']) || !isset($data['content'])) {
 }
 
 $post_id = (int)$data['post_id'];
-$user_id = $_SESSION['user_id'];
-$content = $data['content'];
+$content = trim($data['content']);
+$user_id = (int)$_SESSION['user_id'];
 
-// Validações básicas
 if (empty($content)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'O comentário não pode estar vazio']);
     exit;
 }
 
-if (strlen($content) > 500) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'O comentário não pode ter mais de 500 caracteres']);
-    exit;
-}
-
 try {
-    // Inserir comentário (o trigger incrementará o contador automaticamente)
-    $stmt = $GLOBALS['conn']->prepare("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)");
-    $stmt->execute([$post_id, $user_id, $content]);
+    // Inserir comentário
+    $stmt = $GLOBALS['conn']->prepare("INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, NOW())");
+    $stmt->execute([$user_id, $post_id, $content]);
     
-    // Obter informações do utilizador
-    $stmt = $GLOBALS['conn']->prepare("SELECT id, nome FROM users WHERE id = ?");
-    $stmt->execute([$user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $comment_id = $GLOBALS['conn']->lastInsertId();
+    
+    // Buscar o comentário completo com informações do usuário
+    $stmt = $GLOBALS['conn']->prepare("
+        SELECT c.comment_id, c.user_id, c.post_id, c.content, c.created_at, u.nome
+        FROM comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.comment_id = ?
+    ");
+    $stmt->execute([$comment_id]);
+    
+    $comment = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$comment) {
+        throw new Exception('Erro ao recuperar comentário criado');
+    }
     
     echo json_encode([
         'success' => true,
         'message' => 'Comentário adicionado com êxito',
-        'comment' => [
-            'comment_id' => $GLOBALS['conn']->lastInsertId(),
-            'user_id' => $user_id,
-            'nome' => $user['nome'],
-            'content' => $content,
-            'created_at' => date('Y-m-d H:i:s')
-        ]
+        'comment' => $comment
     ]);
+    
 } catch (PDOException $e) {
+    error_log("create_comment.php - Erro: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Erro ao adicionar comentário']);
+    echo json_encode(['success' => false, 'message' => 'Erro ao adicionar comentário: ' . $e->getMessage()]);
+} catch (Exception $e) {
+    error_log("create_comment.php - Erro: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?>

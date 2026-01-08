@@ -414,12 +414,16 @@ function publishComment(postId) {
 }
 
 function deleteComment(commentId, postId) {
+    console.log('deleteComment chamado com:', { commentId, postId });
+    
     if (!confirm('Tem a certeza que deseja apagar este comentário?')) {
         return;
     }
     
     (async () => {
         try {
+            console.log('Enviando requisição para apagar comment_id:', commentId);
+            
             const response = await fetch(getApiPath('delete_comment.php'), {
                 method: 'DELETE',
                 headers: {
@@ -427,32 +431,40 @@ function deleteComment(commentId, postId) {
                 },
                 body: JSON.stringify({ comment_id: commentId })
             });
+            
+            console.log('Resposta recebida, status:', response.status);
+            
             const data = await response.json();
+            console.log('Dados da resposta:', data);
             
             if (data.success) {
                 // Remover comentário da lista
                 const commentElement = document.getElementById(`comment-${commentId}`);
+                console.log('Elemento do comentário encontrado:', !!commentElement);
+                
                 if (commentElement) {
                     commentElement.remove();
                 }
                 
                 // Atualizar contador de comentários
                 const commentsCount = document.getElementById(`comments-count-${postId}`);
-                const currentCount = parseInt(commentsCount.textContent.match(/\d+/)[0]);
-                const newCount = Math.max(0, currentCount - 1);
-                commentsCount.textContent = `💬 ${newCount} comentário${newCount !== 1 ? 's' : ''}`;
+                if (commentsCount) {
+                    const currentCount = parseInt(commentsCount.textContent.match(/\d+/)[0]);
+                    const newCount = Math.max(0, currentCount - 1);
+                    commentsCount.textContent = `💬 ${newCount} comentário${newCount !== 1 ? 's' : ''}`;
+                }
                 
                 // Se não há mais comentários, mostrar mensagem
                 const commentsList = document.getElementById(`comments-list-${postId}`);
-                if (commentsList.querySelectorAll('.comment').length === 0) {
+                if (commentsList && commentsList.querySelectorAll('.comment').length === 0) {
                     commentsList.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">Nenhum comentário ainda</p>';
                 }
             } else {
                 alert(data.message || 'Erro ao apagar comentário');
             }
         } catch (error) {
-            alert('Erro ao apagar comentário: ' + error);
-            console.error('Erro:', error);
+            console.error('Erro ao apagar comentário:', error);
+            alert('Erro ao apagar comentário: ' + error.message);
         }
     })();
 }
